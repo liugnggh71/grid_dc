@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<ora_sql_code name="check_ASM_space.sql" subdir="dba_code/grid">
+    <header>
+        <desc>Check ASM space usage</desc>
+    </header>
+    <full_code><![CDATA[set linesize 140
+SELECT
+    group_number,
+    name,
+    offline_disks,
+    state,
+    type,
+    total_mb,
+    free_mb,
+    usable_file_mb,
+    round(
+        CASE type
+            WHEN 'HIGH'     THEN
+                3
+            WHEN 'NORMAL'   THEN
+                2
+            WHEN 'EXTERNAL' THEN
+                1
+        END
+        * usable_file_mb / total_mb * 100, 2) pct_free
+FROM
+    v$asm_diskgroup;
+]]></full_code>
+</ora_sql_code>

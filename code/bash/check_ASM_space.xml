@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<bash_code name="check_ASM_space.sh" subdir="dba_code/grid" symbolic_link="S">
+    <header>
+        <shebang>/bin/sh</shebang>
+        <desc>Check ASM space usage</desc>
+    </header>
+    <full_code><![CDATA[MY_CODE_DIR="${BASH_SOURCE%/*}"
+if [[ ! -d "${MY_CODE_DIR}" ]]; then DIR="${PWD}"; fi
+export MY_CODE_DIR
+
+sqlplus / as sysdba << EOF
+@${MY_CODE_DIR}/check_ASM_space.sql
+EOF
+]]></full_code>
+</bash_code>

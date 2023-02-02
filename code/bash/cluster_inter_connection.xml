@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<bash_code name="cluster_interconnection_check.sh" subdir="dba_code/grid" symbolic_link="CC">
+    <header>
+        <shebang>/bin/sh</shebang>
+        <desc>Cluster interconnection check</desc>
+    </header>
+    <source_grid/>
+    <run desc="Check cluster interconnection" indent="1"><![CDATA[crsctl check cluster -all]]></run>
+</bash_code>

@@ -146,7 +146,11 @@
     <xsl:template match="/">
         <xsl:call-template name="dump_all"/>
         <xsl:call-template name="wget"/>
-        <xsl:for-each select="/bash_codes//bash_code">
+        <xsl:call-template name="gen_code"/>
+    </xsl:template>
+    
+    <xsl:template name="gen_code">
+        <xsl:for-each select="/bash_codes/bash_code">
             <xsl:variable name="v_stage_dir">
                 <xsl:choose>
                     <xsl:when test="string-length(../@stage_dir) &gt; 0">
@@ -386,6 +390,11 @@
         <xsl:value-of select="."/>
     </xsl:template>
 
+    <xsl:template match="source_grid">
+        <xsl:text>. /home/grid/.bashrc</xsl:text>
+        <xsl:value-of select="$v_newline"/>
+    </xsl:template>
+    
     <xsl:template name="wget">
         <xsl:variable name="f_wget" select="/bash_codes/stage/wget_stage_code"/>
         <xsl:variable name="v_git_url" select="/bash_codes/@git"/>

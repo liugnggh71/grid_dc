@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="ora_sql.xsl"?>
+<!-- Driver XML -->
+
+<ora_sql_codes xmlns:xi="http://www.w3.org/2001/XInclude"
+    git="https://github.com/liugnggh71/grid_dc/raw/main">
+    <stage>
+        <wget_stage_code>wget_grid_dc_sql.sh</wget_stage_code>
+    </stage>
+    <xi:include href="code/ora_sql/check_ASM_space.xml"/>
+</ora_sql_codes>
