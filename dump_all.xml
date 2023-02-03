@@ -1,53 +1,58 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<?xml-stylesheet type="text/xsl" href="bash.xsl"?>
-<!-- Driver XML -->
-<bash_codes xmlns:xi="http://www.w3.org/2001/XInclude"
-            git="https://github.com/liugnggh71/grid_dc/raw/main">
-   <stage>
-      <wget_stage_code>wget_grid_dc.sh</wget_stage_code>
-   </stage>
-   <bash_code name="cluster_interconnection_check.sh"
-              subdir="dba_code/grid"
-              symbolic_link="CC"
-              xml:base="code/bash/cluster_inter_connection.xml">
-      <header>
-         <shebang>/bin/sh</shebang>
-         <desc>Cluster interconnection check</desc>
-      </header>
-      <source_grid/>
-      <run desc="Check cluster interconnection" indent="1">crsctl check cluster -all</run>
-   </bash_code>
-   <bash_code name="cluster_local_status.sh"
-              subdir="dba_code/grid"
-              symbolic_link="CS"
-              xml:base="code/bash/cluster_local_status.xml">
-      <header>
-         <shebang>/bin/sh</shebang>
-         <desc>Cluster local status check</desc>
-      </header>
-      <source_grid/>
-      <run desc="Check local status" indent="1">crsctl stat res -t</run>
-   </bash_code>
-   <bash_code name="cluster_init_status.sh"
-              subdir="dba_code/grid"
-              symbolic_link="IS"
-              xml:base="code/bash/cluster_init_status.xml">
-      <header>
-         <shebang>/bin/sh</shebang>
-         <desc>Cluster local init status check</desc>
-      </header>
-      <source_grid/>
-      <run desc="Check local init status" indent="1">crsctl stat res -t -init</run>
-   </bash_code>
-   <bash_code name="check_ASM_space.sh"
-              subdir="dba_code/grid"
-              symbolic_link="S"
-              xml:base="code/bash/check_ASM_space.xml">
-      <header>
-         <shebang>/bin/sh</shebang>
-         <desc>Check ASM space usage</desc>
-      </header>
-      <full_code>MY_CODE_DIR="${BASH_SOURCE%/*}"
+<?xml-stylesheet type="text/xsl" href="stage.xsl"?>
+<stage xmlns:xi="http://www.w3.org/2001/XInclude"
+        git="https://github.com/liugnggh71/grid_dc/raw/main">
+   <prepare_zip_cmd>zip -ry grid_dc.zip dba_code</prepare_zip_cmd>
+   <install_zip>https://github.com/liugnggh71/grid_dc/raw/main/Install/grid_dc.zip</install_zip>
+   <?xml-stylesheet type="text/xsl" href="bash.xsl"?>
+   <!-- Driver XML -->
+   <bash_codes git="https://github.com/liugnggh71/grid_dc/raw/main"
+                xml:base="bash_codes.xml">
+      <stage>
+         <wget_stage_code>wget_grid_dc.sh</wget_stage_code>
+      </stage>
+      <bash_code name="cluster_interconnection_check.sh"
+                  subdir="dba_code/grid"
+                  symbolic_link="CC"
+                  xml:base="code/bash/cluster_inter_connection.xml">
+         <header>
+            <shebang>/bin/sh</shebang>
+            <desc>Cluster interconnection check</desc>
+         </header>
+         <source_grid/>
+         <run desc="Check cluster interconnection" indent="1">crsctl check cluster -all</run>
+      </bash_code>
+      <bash_code name="cluster_local_status.sh"
+                  subdir="dba_code/grid"
+                  symbolic_link="CS"
+                  xml:base="code/bash/cluster_local_status.xml">
+         <header>
+            <shebang>/bin/sh</shebang>
+            <desc>Cluster local status check</desc>
+         </header>
+         <source_grid/>
+         <run desc="Check local status" indent="1">crsctl stat res -t</run>
+      </bash_code>
+      <bash_code name="cluster_init_status.sh"
+                  subdir="dba_code/grid"
+                  symbolic_link="IS"
+                  xml:base="code/bash/cluster_init_status.xml">
+         <header>
+            <shebang>/bin/sh</shebang>
+            <desc>Cluster local init status check</desc>
+         </header>
+         <source_grid/>
+         <run desc="Check local init status" indent="1">crsctl stat res -t -init</run>
+      </bash_code>
+      <bash_code name="check_ASM_space.sh"
+                  subdir="dba_code/grid"
+                  symbolic_link="S"
+                  xml:base="code/bash/check_ASM_space.xml">
+         <header>
+            <shebang>/bin/sh</shebang>
+            <desc>Check ASM space usage</desc>
+         </header>
+         <full_code>MY_CODE_DIR="${BASH_SOURCE%/*}"
 if [[ ! -d "${MY_CODE_DIR}" ]]; then DIR="${PWD}"; fi
 export MY_CODE_DIR
 
@@ -55,5 +60,158 @@ sqlplus / as sysdba &lt;&lt; EOF
 @${MY_CODE_DIR}/check_ASM_space.sql
 EOF
 </full_code>
-   </bash_code>
-</bash_codes>
+      </bash_code>
+   </bash_codes>
+   <?xml-stylesheet type="text/xsl" href="ora_sql.xsl"?>
+   <!-- Driver XML -->
+   <ora_sql_codes git="https://github.com/liugnggh71/grid_dc/raw/main"
+                   xml:base="ora_sql_codes.xml">
+      <stage>
+         <wget_stage_code>wget_grid_dc_sql.sh</wget_stage_code>
+      </stage>
+      <ora_sql_code name="check_ASM_space.sql"
+                     subdir="dba_code/grid"
+                     xml:base="code/ora_sql/check_ASM_space.xml">
+         <header>
+            <desc>Check ASM space usage</desc>
+         </header>
+         <full_code>set linesize 140
+SELECT
+    group_number,
+    name,
+    offline_disks,
+    state,
+    type,
+    total_mb,
+    free_mb,
+    usable_file_mb,
+    round(
+        CASE type
+            WHEN 'HIGH'     THEN
+                3
+            WHEN 'NORMAL'   THEN
+                2
+            WHEN 'EXTERNAL' THEN
+                1
+        END
+        * usable_file_mb / total_mb * 100, 2) pct_free
+FROM
+    v$asm_diskgroup;
+</full_code>
+      </ora_sql_code>
+   </ora_sql_codes>
+   <Installs xml:base="Install_targets.xml">
+      <install xml:base="Install/PeopleSoft/pn1.xml">
+         <host>bswexadbt02-1kjpk1.pvtppdbnp.pvtpp.oraclevcn.com</host>
+         <ip>10.21.5.50</ip>
+         <user>opc</user>
+         <key_file>id_rsa</key_file>
+         <stage>bsworaredhat01.bhcs.pvt</stage>
+      </install>
+      <install xml:base="Install/PeopleSoft/pn2.xml">
+         <host>bswexadbt02-1kjpk2.pvtppdbnp.pvtpp.oraclevcn.com</host>
+         <ip>10.21.5.38</ip>
+         <user>opc</user>
+         <key_file>id_rsa</key_file>
+         <stage>bsworaredhat01.bhcs.pvt</stage>
+      </install>
+      <install xml:base="Install/PeopleSoft/pp1.xml">
+         <host>bswexadbp01-rlmu81.pvtppproddb1021.phxpvtppprod.oraclevcn.com</host>
+         <ip>10.21.133.2</ip>
+         <user>opc</user>
+         <key_file>id_rsa</key_file>
+         <stage>bsworaredhat01.bhcs.pvt</stage>
+      </install>
+      <install xml:base="Install/PeopleSoft/pp2.xml">
+         <host>bswexadbp01-rlmu82.pvtppproddb1021.phxpvtppprod.oraclevcn.com</host>
+         <ip>10.21.133.3</ip>
+         <user>opc</user>
+         <key_file>id_rsa</key_file>
+         <stage>bsworaredhat01.bhcs.pvt</stage>
+      </install>
+      <install xml:base="Install/PeopleSoft/pq1.xml">
+         <host>bswexadbp02-5cfwx1.pvtppproddb02.phxpvtppprod.oraclevcn.com</host>
+         <ip>10.21.133.44</ip>
+         <user>opc</user>
+         <key_file>id_rsa</key_file>
+         <stage>bsworaredhat01.bhcs.pvt</stage>
+      </install>
+      <install xml:base="Install/PeopleSoft/pq2.xml">
+         <host>bswexadbp02-5cfwx2.pvtppproddb02.phxpvtppprod.oraclevcn.com</host>
+         <ip>10.21.133.35</ip>
+         <user>opc</user>
+         <key_file>id_rsa</key_file>
+         <stage>bsworaredhat01.bhcs.pvt</stage>
+      </install>
+      <install xml:base="Install/PeopleSoft/pt1.xml">
+         <host>bswexadbt01-q8ebk1.pvtppnonprod102.pvtpp.oraclevcn.com</host>
+         <ip>10.21.5.2</ip>
+         <user>opc</user>
+         <key_file>id_rsa</key_file>
+         <stage>bsworaredhat01.bhcs.pvt</stage>
+      </install>
+      <install xml:base="Install/PeopleSoft/pt2.xml">
+         <host>bswexadbt01-q8ebk2.pvtppnonprod102.pvtpp.oraclevcn.com</host>
+         <ip>10.21.5.3</ip>
+         <user>opc</user>
+         <key_file>id_rsa</key_file>
+         <stage>bsworaredhat01.bhcs.pvt</stage>
+      </install>
+      <install xml:base="Install/FirstCare/fg1.xml">
+         <host>aupp-hroradb-bfcfz1.hlthedgexap.pvthlthedgedr.oraclevcn.com</host>
+         <ip>10.21.137.2</ip>
+         <user>opc</user>
+         <key_file>id_rsa</key_file>
+         <stage>bsworaredhat01.bhcs.pvt</stage>
+      </install>
+      <install xml:base="Install/FirstCare/fg2.xml">
+         <host>aupp-hroradb-bfcfz2.hlthedgexap.pvthlthedgedr.oraclevcn.com</host>
+         <ip>10.21.137.3</ip>
+         <user>opc</user>
+         <key_file>id_rsa</key_file>
+         <stage>bsworaredhat01.bhcs.pvt</stage>
+      </install>
+      <install xml:base="Install/FirstCare/fn1.xml">
+         <host>bswochrdbt01-fz4re1.hlthedgeexa.pvthlthedgeprod.oraclevcn.com</host>
+         <ip>10.21.32.98</ip>
+         <user>opc</user>
+         <key_file>id_rsa</key_file>
+         <stage>bsworaredhat01.bhcs.pvt</stage>
+      </install>
+      <install xml:base="Install/FirstCare/fn2.xml">
+         <host>bswochrdbt01-fz4re2.hlthedgeexa.pvthlthedgeprod.oraclevcn.com</host>
+         <ip>10.21.32.102</ip>
+         <user>opc</user>
+         <key_file>id_rsa</key_file>
+         <stage>bsworaredhat01.bhcs.pvt</stage>
+      </install>
+      <install xml:base="Install/FirstCare/fp1.xml">
+         <host>aupp-hroradb-f9exx1.hlthedgexap.pvthlthedgeprod.oraclevcn.com</host>
+         <ip>10.21.32.2</ip>
+         <user>opc</user>
+         <key_file>id_rsa</key_file>
+         <stage>bsworaredhat01.bhcs.pvt</stage>
+      </install>
+      <install xml:base="Install/FirstCare/fp2.xml">
+         <host>aupp-hroradb-f9exx2.hlthedgexap.pvthlthedgeprod.oraclevcn.com</host>
+         <ip>10.21.32.3</ip>
+         <user>opc</user>
+         <key_file>id_rsa</key_file>
+         <stage>bsworaredhat01.bhcs.pvt</stage>
+      </install>
+      <install xml:base="Install/FirstCare/ft1.xml">
+         <host>autp-hroradb-utzrk1.hlthedgeexa.pvthlthedgeprod.oraclevcn.com</host>
+         <ip>10.21.32.105</ip>
+         <user>opc</user>
+         <key_file>id_rsa</key_file>
+         <stage>bsworaredhat01.bhcs.pvt</stage>
+      </install>
+      <install xml:base="Install/FirstCare/ft2.xml">
+         <host>autp-hroradb-utzrk2.hlthedgeexa.pvthlthedgeprod.oraclevcn.com</host>
+         <ip>10.21.32.106</ip>
+         <user>opc</user>
+         <key_file>id_rsa</key_file>
+         <stage>bsworaredhat01.bhcs.pvt</stage>
+      </install>
+   </Installs>
+</stage>
