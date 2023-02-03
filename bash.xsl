@@ -198,7 +198,16 @@
         <xsl:value-of select="@desc"/>
         <xsl:text>"</xsl:text>
         <xsl:value-of select="$v_newline"/>
-
+        <xsl:choose>
+            <xsl:when test="@show_code = 'Y'">
+                <xsl:value-of select="$v_indent_string"/>
+                <xsl:text>echo "</xsl:text>
+                <xsl:value-of select="."/>
+                <xsl:text>"</xsl:text>
+                <xsl:value-of select="$v_newline"/>
+            </xsl:when>
+        </xsl:choose>
+        
         <xsl:value-of select="$v_newline"/>
         <xsl:value-of select="$v_indent_string"/>
         <xsl:value-of select="."/>
