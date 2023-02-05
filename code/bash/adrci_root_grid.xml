@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<bash_code name="adrci_root_grid.sh" subdir="dba_code/grid" symbolic_link="CN">
+    <header>
+        <shebang>/bin/sh</shebang>
+        <desc>adrci root check grid ASM alerts</desc>
+    </header>
+    <source_grid/>
+    <run desc="Show date" indent="1" show_code="Y"><![CDATA[date]]></run>
+    <run desc="Show hostname" indent="1" show_code="Y"><![CDATA[hostname -f]]></run>
+    
+</bash_code>

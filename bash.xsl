@@ -148,7 +148,7 @@
         <xsl:call-template name="wget"/>
         <xsl:call-template name="gen_code"/>
     </xsl:template>
-    
+
     <xsl:template name="gen_code">
         <xsl:for-each select="/bash_codes/bash_code">
             <xsl:variable name="v_stage_dir">
@@ -201,13 +201,21 @@
         <xsl:choose>
             <xsl:when test="@show_code = 'Y'">
                 <xsl:value-of select="$v_indent_string"/>
+                <xsl:text>echo </xsl:text>
+                <xsl:value-of select="functx:pad-string-to-length('~', '~', string-length(.))"/>
+                <xsl:value-of select="$v_newline"/>
+                <xsl:value-of select="$v_indent_string"/>
                 <xsl:text>echo "</xsl:text>
                 <xsl:value-of select="."/>
                 <xsl:text>"</xsl:text>
                 <xsl:value-of select="$v_newline"/>
+                <xsl:value-of select="$v_indent_string"/>
+                <xsl:text>echo </xsl:text>
+                <xsl:value-of select="functx:pad-string-to-length('~', '~', string-length(.))"/>
+                <xsl:value-of select="$v_newline"/>
             </xsl:when>
         </xsl:choose>
-        
+
         <xsl:value-of select="$v_newline"/>
         <xsl:value-of select="$v_indent_string"/>
         <xsl:value-of select="."/>
@@ -403,7 +411,7 @@
         <xsl:text>. /home/grid/.bashrc</xsl:text>
         <xsl:value-of select="$v_newline"/>
     </xsl:template>
-    
+
     <xsl:template name="wget">
         <xsl:variable name="f_wget" select="/bash_codes/stage/wget_stage_code"/>
         <xsl:variable name="v_git_url" select="/bash_codes/@git"/>
@@ -414,10 +422,10 @@
             <xsl:value-of select="$f_wget"/>
             <xsl:value-of select="$v_newline"/>
             <xsl:value-of select="$v_newline"/>
-            
+
             <xsl:text><![CDATA[pwd=$(pwd)]]></xsl:text>
             <xsl:value-of select="$v_newline"/>
-            
+
             <xsl:for-each-group select="//bash_code[@name]" group-by="@subdir">
                 <xsl:variable name="v_subdir" select="./@subdir"> </xsl:variable>
                 <xsl:text>cd ${pwd}</xsl:text>
@@ -425,7 +433,7 @@
                 <xsl:text>mkdir -p </xsl:text>
                 <xsl:value-of select="$v_subdir"/>
                 <xsl:value-of select="$v_newline"/>
-                
+
                 <xsl:text>cat &lt;&lt; 'EOC' &gt; </xsl:text>
                 <xsl:choose>
                     <xsl:when test="position() gt 1">
@@ -441,9 +449,9 @@
                 <xsl:value-of select="$v_newline"/>
                 <xsl:text>EOC</xsl:text>
                 <xsl:value-of select="$v_newline"/>
-                
-                
-<!--                
+
+
+                <!--                
                 <xsl:text>echo -n export PATH=\${HOME}/</xsl:text>
                 <xsl:value-of select="$v_subdir"/>
                 <xsl:choose>
@@ -458,7 +466,8 @@
                 <xsl:value-of select="$v_newline"/>
                 <xsl:text>echo ':${PATH}' >> profile.txt </xsl:text>
                 <xsl:value-of select="$v_newline"/>
--->                <xsl:text>echo cd </xsl:text>
+-->
+                <xsl:text>echo cd </xsl:text>
                 <xsl:value-of select="$v_subdir"/>
                 <xsl:choose>
                     <xsl:when test="position() gt 1">
@@ -469,13 +478,13 @@
                 <xsl:value-of select="$v_subdir"/>
                 <xsl:text>/cd_dba_code_bin.sh</xsl:text>
                 <xsl:value-of select="$v_newline"/>
-                
+
                 <xsl:text>echo ln -s cd_dba_code_bin.sh BN</xsl:text>
                 <xsl:text> &gt; </xsl:text>
                 <xsl:value-of select="$v_subdir"/>
                 <xsl:text>/ln_bn.sh</xsl:text>
                 <xsl:value-of select="$v_newline"/>
-                
+
                 <xsl:text>cd ${pwd}/</xsl:text>
                 <xsl:value-of select="$v_subdir"/>
                 <xsl:value-of select="$v_newline"/>

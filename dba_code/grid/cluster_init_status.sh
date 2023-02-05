@@ -9,6 +9,8 @@ COMMENT
   #Check local init status
   #RRRRRRRRRRRRRRRRRRRRRRR
   echo "Check local init status"
+  echo ~~~~~~~~~~~~~~~~~~~~~~~~
   echo "crsctl stat res -t -init"
+  echo ~~~~~~~~~~~~~~~~~~~~~~~~
 
   crsctl stat res -t -init
