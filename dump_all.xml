@@ -107,5 +107,15 @@ EOF
       <source_grid/>
       <run desc="Show date" indent="1" show_code="Y">date</run>
       <run desc="Show hostname" indent="1" show_code="Y">hostname -f</run>
+      <run_here run_cmd="adrci"
+                indent="1"
+                desc="Check alert log for host $(hostname -s) on grid and listeners"
+                eof="EOS"
+                quote="yes"
+                append="no"
+                display="yes"
+                cat_run_code="yes">show problem -all
+show incident -all
+</run_here>
    </bash_code>
 </bash_codes>

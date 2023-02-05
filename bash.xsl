@@ -526,10 +526,25 @@
             <xsl:call-template name="get_indent"/>
         </xsl:variable>
         
+        <xsl:text>echo </xsl:text>
+        <xsl:value-of select="functx:pad-string-to-length('~', '~',  string-length(@desc))"/>
+        <xsl:value-of select="$v_newline"/>
+        <xsl:text>echo "</xsl:text>
+        <xsl:value-of select="@desc"/>
+        <xsl:text>"</xsl:text>
+        <xsl:value-of select="$v_newline"/>
+        <xsl:text>echo </xsl:text>
+        <xsl:value-of select="functx:pad-string-to-length('~', '~',   string-length(@desc))"/>
+        <xsl:value-of select="$v_newline"/>
+        
         
         <xsl:if test="@cat_run_code != 'no'">
             <xsl:value-of select="$v_indent_string"/>
             <xsl:text>cat </xsl:text>
+            <xsl:text> &lt;&lt; </xsl:text>
+            <xsl:text>'EEOOCC'</xsl:text>
+            <xsl:value-of select="$v_newline"/>
+            <xsl:value-of select="@run_cmd"/>
             <xsl:text> &lt;&lt; </xsl:text>
             <xsl:if test="@quote = 'yes'">
                 <xsl:text>'</xsl:text>
@@ -542,6 +557,8 @@
             <xsl:value-of select="."/>
             <xsl:value-of select="$v_newline"/>
             <xsl:value-of select="@eof"/>
+            <xsl:value-of select="$v_newline"/>
+            <xsl:text>EEOOCC</xsl:text>
             <xsl:value-of select="$v_newline"/>
         </xsl:if>
         

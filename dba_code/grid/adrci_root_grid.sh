@@ -22,3 +22,19 @@ COMMENT
   echo ~~~~~~~~~~~
 
   hostname -f
+echo ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+echo "Check alert log for host $(hostname -s) on grid and listeners"
+echo ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  cat  << 'EEOOCC'
+adrci << 'EOS'
+show problem -all
+show incident -all
+
+EOS
+EEOOCC
+  # Check alert log for host $(hostname -s) on grid and listeners!!!!!!!!!!!!!!!!!!!
+  adrci << 'EOS'
+show problem -all
+show incident -all
+
+EOS
