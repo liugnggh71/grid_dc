@@ -521,5 +521,75 @@
         </xsl:result-document>
     </xsl:template>
 
-
+    <xsl:template match="run_here">
+        <xsl:variable name="v_indent_string">
+            <xsl:call-template name="get_indent"/>
+        </xsl:variable>
+        
+        
+        <xsl:if test="@cat_run_code != 'no'">
+            <xsl:value-of select="$v_indent_string"/>
+            <xsl:text>cat </xsl:text>
+            <xsl:text> &lt;&lt; </xsl:text>
+            <xsl:if test="@quote = 'yes'">
+                <xsl:text>'</xsl:text>
+            </xsl:if>
+            <xsl:value-of select="@eof"/>
+            <xsl:if test="@quote = 'yes'">
+                <xsl:text>'</xsl:text>
+            </xsl:if>
+            <xsl:value-of select="$v_newline"/>
+            <xsl:value-of select="."/>
+            <xsl:value-of select="$v_newline"/>
+            <xsl:value-of select="@eof"/>
+            <xsl:value-of select="$v_newline"/>
+        </xsl:if>
+        
+        <xsl:value-of select="$v_indent_string"/>
+        <xsl:text># </xsl:text>
+        <xsl:value-of select="functx:pad-string-to-length(@desc, '!', 80)"/>
+        <xsl:value-of select="$v_newline"/>
+        <xsl:value-of select="$v_indent_string"/>
+        
+        <xsl:if test="@nohup = 'yes'">
+            <xsl:text>nohup </xsl:text>
+        </xsl:if>
+        <xsl:value-of select="@run_cmd"/>
+        <xsl:text> &lt;&lt; </xsl:text>
+        <xsl:if test="@quote = 'yes'">
+            <xsl:text>'</xsl:text>
+        </xsl:if>
+        <xsl:value-of select="@eof"/>
+        <xsl:if test="@quote = 'yes'">
+            <xsl:text>'</xsl:text>
+        </xsl:if>
+        <xsl:if test="string-length(@log) &gt; 0">
+            <xsl:choose>
+                <xsl:when test="@display = 'yes'">
+                    <xsl:text> | tee </xsl:text>
+                    <xsl:if test="@append = 'yes'">
+                        <xsl:text>-a </xsl:text>
+                    </xsl:if>
+                </xsl:when>
+                <xsl:otherwise>
+                    <xsl:text> &gt;</xsl:text>
+                    <xsl:if test="@append = 'yes'">
+                        <xsl:text>&gt;</xsl:text>
+                    </xsl:if>
+                </xsl:otherwise>
+            </xsl:choose>
+            <xsl:value-of select="@log"/>
+        </xsl:if>
+        
+        <xsl:if test="@nohup = 'yes'">
+            <xsl:text> 2&gt;&amp;1 &amp;</xsl:text>
+        </xsl:if>
+        
+        <xsl:value-of select="$v_newline"/>
+        <xsl:value-of select="."/>
+        <xsl:value-of select="$v_newline"/>
+        <xsl:value-of select="@eof"/>
+        <xsl:value-of select="$v_newline"/>
+    </xsl:template>
+    
 </xsl:stylesheet>
