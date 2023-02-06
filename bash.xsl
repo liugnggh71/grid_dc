@@ -614,5 +614,20 @@
         </xsl:result-document>
     </xsl:template>
 
+    <xsl:template match="while_block">
+        <xsl:variable name="v_indent_string">
+            <xsl:call-template name="get_indent"/>
+        </xsl:variable>
+        <xsl:value-of select="$v_indent_string"/>
+        <xsl:text>while </xsl:text>
+        <xsl:apply-templates select="test[1]"/>
+        <xsl:value-of select="$v_newline"/>
+        <xsl:for-each select="*[name() != 'test']">
+            <xsl:apply-templates select="."/>
+        </xsl:for-each>
+        <xsl:value-of select="$v_indent_string"/>
+        <xsl:text>done</xsl:text>
+        <xsl:value-of select="$v_newline"/>
+    </xsl:template>
     
 </xsl:stylesheet>
