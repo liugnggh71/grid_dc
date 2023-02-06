@@ -25,6 +25,8 @@ wget https://github.com/liugnggh71/grid_dc/raw/main/dba_code/grid/asm_disk_info.
 chmod u+x asm_disk_info.sh
 wget https://github.com/liugnggh71/grid_dc/raw/main/dba_code/grid/adrci_root_grid.sh
 chmod u+x adrci_root_grid.sh
+wget https://github.com/liugnggh71/grid_dc/raw/main/dba_code/grid/grid_inventory.sh
+chmod u+x grid_inventory.sh
 cd ${pwd}/dba_code/grid
 ln -s apx_checking.sh AX
 ln -s cluster_interconnection_check.sh CC
@@ -34,4 +36,5 @@ ln -s check_ASM_space.sh S
 ln -s cluster_name.sh CN
 ln -s asm_disk_info.sh DA
 ln -s adrci_root_grid.sh CN
+ln -s grid_inventory.sh GI
 cd ${pwd}

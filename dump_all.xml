@@ -118,4 +118,15 @@ EOF
 show incident -all
 </run_here>
    </bash_code>
+   <bash_code name="grid_inventory.sh"
+              subdir="dba_code/grid"
+              symbolic_link="GI"
+              xml:base="code/bash/grid_inventory.xml">
+      <header>
+         <shebang>/bin/sh</shebang>
+         <desc>Grid inventory</desc>
+      </header>
+      <source_grid/>
+      <run desc="Opatch list patches" indent="1" show_code="Y">opatch lspatches</run>
+   </bash_code>
 </bash_codes>
