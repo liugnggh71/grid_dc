@@ -72,70 +72,12 @@
                 "/>
 
     </xsl:function>
-    <xsl:template name="get_indent">
-        <xsl:variable name="v_indent_level">
-            <xsl:value-of select="
-                    sum(for $i in ancestor-or-self::*
-                    return
-                        $i/@indent)"/>
-        </xsl:variable>
-        <xsl:value-of select="functx:repeat-string('  ', $v_indent_level)"/>
+
+    <xsl:template match="/">
+        <xsl:call-template name="dump_all"/>
+        <xsl:call-template name="wget"/>
+        <xsl:call-template name="gen_code"/>
     </xsl:template>
-
-    <xsl:template match="source">
-        <xsl:variable name="v_indent_string">
-            <xsl:call-template name="get_indent"/>
-        </xsl:variable>
-        <xsl:value-of select="$v_indent_string"/>
-        <xsl:text>. </xsl:text>
-        <xsl:value-of select="."/>
-
-        <xsl:if test="string-length(@log) &gt; 0">
-            <xsl:choose>
-                <xsl:when test="@display = 'yes'">
-                    <xsl:text> | tee </xsl:text>
-                    <xsl:if test="@append = 'yes'">
-                        <xsl:text>-a </xsl:text>
-                    </xsl:if>
-                </xsl:when>
-                <xsl:otherwise>
-                    <xsl:text> &gt;</xsl:text>
-                    <xsl:if test="@append = 'yes'">
-                        <xsl:text>&gt;</xsl:text>
-                    </xsl:if>
-                </xsl:otherwise>
-            </xsl:choose>
-
-            <xsl:value-of select="@log"/>
-        </xsl:if>
-        <xsl:value-of select="$v_newline"/>
-    </xsl:template>
-
-    <xsl:template match="header">
-        <xsl:variable name="v_desc">
-            <xsl:text># </xsl:text>
-            <xsl:value-of select="../@name"/>
-            <xsl:value-of select="$v_newline"/>
-            <xsl:text><![CDATA[<<COMMENT]]></xsl:text>
-            <xsl:value-of select="$v_newline"/>
-            <xsl:value-of select="desc"/>
-            <xsl:value-of select="$v_newline"/>
-            <xsl:text>COMMENT</xsl:text>
-            <xsl:value-of select="$v_newline"/>
-        </xsl:variable>
-
-        <xsl:if test="string-length(shebang) &gt; 0">
-            <xsl:text>#!</xsl:text>
-            <xsl:value-of select="shebang"/>
-            <xsl:value-of select="$v_newline"/>
-        </xsl:if>
-        <xsl:value-of select="functx:repeat-string('#', 80)"/>
-        <xsl:value-of select="$v_newline"/>
-        <xsl:value-of select="$v_desc"/>
-        <xsl:value-of select="functx:repeat-string('#', 80)"/>
-        <xsl:value-of select="$v_newline"/>
-    </xsl:template>
-
 
     <xsl:template name="dump_all">
         <xsl:result-document href="dump_all.xml" method="xml" indent="yes">
@@ -143,10 +85,62 @@
         </xsl:result-document>
     </xsl:template>
 
-    <xsl:template match="/">
-        <xsl:call-template name="dump_all"/>
-        <xsl:call-template name="wget"/>
-        <xsl:call-template name="gen_code"/>
+    <xsl:template match="echo">
+        <xsl:variable name="v_indent_string">
+            <xsl:call-template name="get_indent"/>
+        </xsl:variable>
+        
+        <xsl:if test="@wrapper and (@position = 'both' or @position = 'front')">
+            <xsl:value-of select="$v_newline"/>
+            <xsl:value-of select="$v_indent_string"/>
+            <xsl:text>echo "</xsl:text>
+            <xsl:value-of select="functx:pad-string-to-length('#', @wrapper, string-length(.))"/>
+            <xsl:text>"</xsl:text>
+            <xsl:value-of select="$v_newline"/>
+        </xsl:if>
+        <xsl:value-of select="$v_indent_string"/>
+        <xsl:text>echo "</xsl:text>
+        <xsl:value-of select="."/>
+        <xsl:text>"</xsl:text>
+        <xsl:value-of select="$v_newline"/>
+        <xsl:if test="@wrapper and (@position = 'both' or @position = 'back')">
+            <xsl:value-of select="$v_indent_string"/>
+            <xsl:text>echo "</xsl:text>
+            <xsl:value-of select="functx:pad-string-to-length('#', @wrapper, string-length(.))"/>
+            <xsl:text>"</xsl:text>
+            <xsl:value-of select="$v_newline"/>
+        </xsl:if>
+    </xsl:template>
+
+    <xsl:template match="exit">
+        <xsl:variable name="v_indent_string">
+            <xsl:call-template name="get_indent"/>
+        </xsl:variable>
+        <xsl:variable name="v_exit">
+            <xsl:value-of select="$v_indent_string"/>
+            <xsl:text>exit </xsl:text>
+            <xsl:value-of select="."/>
+            <xsl:value-of select="$v_newline"/>
+        </xsl:variable>
+        
+        <xsl:variable name="v_XX">
+            <xsl:value-of select="$v_indent_string"/>
+            <xsl:text>#</xsl:text>
+            <xsl:for-each select="1 to string-length($v_exit)">
+                <xsl:text>X</xsl:text>
+            </xsl:for-each>
+            <xsl:value-of select="$v_newline"/>
+        </xsl:variable>
+        
+        <xsl:value-of select="$v_newline"/>
+        <xsl:value-of select="$v_XX"/>
+        <xsl:value-of select="$v_exit"/>
+        <xsl:value-of select="$v_XX"/>
+    </xsl:template>
+
+    <xsl:template match="full_code">
+        <xsl:value-of select="$v_newline"/>
+        <xsl:value-of select="."/>
     </xsl:template>
 
     <xsl:template name="gen_code">
@@ -176,77 +170,42 @@
             </xsl:result-document>
         </xsl:for-each>
     </xsl:template>
-
-    <xsl:template match="run">
-        <xsl:variable name="v_indent_string">
-            <xsl:call-template name="get_indent"/>
+    
+    <xsl:template name="get_indent">
+        <xsl:variable name="v_indent_level">
+            <xsl:value-of select="
+                sum(for $i in ancestor-or-self::*
+                return
+                $i/@indent)"/>
         </xsl:variable>
-        <xsl:value-of select="$v_indent_string"/>
-        <xsl:text>#</xsl:text>
-        <xsl:value-of select="@desc"/>
-        <xsl:value-of select="$v_newline"/>
-
-        <xsl:value-of select="$v_indent_string"/>
-        <xsl:text>#</xsl:text>
-        <xsl:for-each select="1 to string-length(@desc)">
-            <xsl:text>R</xsl:text>
-        </xsl:for-each>
-        <xsl:value-of select="$v_newline"/>
-
-        <xsl:value-of select="$v_indent_string"/>
-        <xsl:text>echo "</xsl:text>
-        <xsl:value-of select="@desc"/>
-        <xsl:text>"</xsl:text>
-        <xsl:value-of select="$v_newline"/>
-        <xsl:choose>
-            <xsl:when test="@show_code = 'Y'">
-                <xsl:value-of select="$v_indent_string"/>
-                <xsl:text>echo </xsl:text>
-                <xsl:value-of select="functx:pad-string-to-length('~', '~', string-length(.))"/>
-                <xsl:value-of select="$v_newline"/>
-                <xsl:value-of select="$v_indent_string"/>
-                <xsl:text>echo "</xsl:text>
-                <xsl:value-of select="."/>
-                <xsl:text>"</xsl:text>
-                <xsl:value-of select="$v_newline"/>
-                <xsl:value-of select="$v_indent_string"/>
-                <xsl:text>echo </xsl:text>
-                <xsl:value-of select="functx:pad-string-to-length('~', '~', string-length(.))"/>
-                <xsl:value-of select="$v_newline"/>
-            </xsl:when>
-        </xsl:choose>
-
-        <xsl:value-of select="$v_newline"/>
-        <xsl:value-of select="$v_indent_string"/>
-        <xsl:value-of select="."/>
-        <xsl:value-of select="$v_newline"/>
+        <xsl:value-of select="functx:repeat-string('  ', $v_indent_level)"/>
     </xsl:template>
 
-    <xsl:template match="exit">
-        <xsl:variable name="v_indent_string">
-            <xsl:call-template name="get_indent"/>
-        </xsl:variable>
-        <xsl:variable name="v_exit">
-            <xsl:value-of select="$v_indent_string"/>
-            <xsl:text>exit </xsl:text>
-            <xsl:value-of select="."/>
+    <xsl:template match="header">
+        <xsl:variable name="v_desc">
+            <xsl:text># </xsl:text>
+            <xsl:value-of select="../@name"/>
+            <xsl:value-of select="$v_newline"/>
+            <xsl:text><![CDATA[<<COMMENT]]></xsl:text>
+            <xsl:value-of select="$v_newline"/>
+            <xsl:value-of select="desc"/>
+            <xsl:value-of select="$v_newline"/>
+            <xsl:text>COMMENT</xsl:text>
             <xsl:value-of select="$v_newline"/>
         </xsl:variable>
-
-        <xsl:variable name="v_XX">
-            <xsl:value-of select="$v_indent_string"/>
-            <xsl:text>#</xsl:text>
-            <xsl:for-each select="1 to string-length($v_exit)">
-                <xsl:text>X</xsl:text>
-            </xsl:for-each>
+        
+        <xsl:if test="string-length(shebang) &gt; 0">
+            <xsl:text>#!</xsl:text>
+            <xsl:value-of select="shebang"/>
             <xsl:value-of select="$v_newline"/>
-        </xsl:variable>
-
+        </xsl:if>
+        <xsl:value-of select="functx:repeat-string('#', 80)"/>
         <xsl:value-of select="$v_newline"/>
-        <xsl:value-of select="$v_XX"/>
-        <xsl:value-of select="$v_exit"/>
-        <xsl:value-of select="$v_XX"/>
+        <xsl:value-of select="$v_desc"/>
+        <xsl:value-of select="functx:repeat-string('#', 80)"/>
+        <xsl:value-of select="$v_newline"/>
     </xsl:template>
+    
     <xsl:template match="if_block">
         <xsl:variable name="v_indent_string">
             <xsl:call-template name="get_indent"/>
@@ -261,38 +220,7 @@
         <xsl:text>fi</xsl:text>
         <xsl:value-of select="$v_newline"/>
     </xsl:template>
-
-    <xsl:template match="test">
-        <xsl:variable name="v_indent_string">
-            <xsl:call-template name="get_indent"/>
-        </xsl:variable>
-
-        <!--        <xsl:if test="../name() = 'if_block' and count(preceding-sibling::test) = 0">
-            <xsl:value-of select="$v_indent_string"/>
-            <xsl:text>if </xsl:text>
-        </xsl:if>
--->
-        <xsl:if test="../name() = 'if_block' and count(preceding-sibling::test) > 0">
-            <xsl:value-of select="$v_indent_string"/>
-            <xsl:text>elif </xsl:text>
-        </xsl:if>
-        <xsl:text>[ </xsl:text>
-        <xsl:apply-templates select="./*"/>
-        <xsl:text> ] </xsl:text>
-        <xsl:value-of select="$v_newline"/>
-        <xsl:choose>
-            <xsl:when test="../name() = 'if_block'">
-                <xsl:value-of select="$v_indent_string"/>
-                <xsl:text>then</xsl:text>
-            </xsl:when>
-            <xsl:when test="../name() = 'while_block'">
-                <xsl:value-of select="$v_indent_string"/>
-                <xsl:text> do</xsl:text>
-            </xsl:when>
-        </xsl:choose>
-
-        <xsl:value-of select="$v_newline"/>
-    </xsl:template>
+    
     <xsl:template match="operand">
         <xsl:choose>
             <xsl:when test="@type = 'variable'">
@@ -318,6 +246,7 @@
             </xsl:when>
         </xsl:choose>
     </xsl:template>
+
     <xsl:template match="operator">
         <xsl:choose>
             <xsl:when test=". = 'NumberGreater'">
@@ -370,45 +299,209 @@
             </xsl:when>
         </xsl:choose>
     </xsl:template>
-    <xsl:template match="echo">
+
+    <xsl:template match="run">
         <xsl:variable name="v_indent_string">
             <xsl:call-template name="get_indent"/>
         </xsl:variable>
-
-        <xsl:if test="@wrapper and (@position = 'both' or @position = 'front')">
-            <xsl:value-of select="$v_newline"/>
-            <xsl:value-of select="$v_indent_string"/>
-            <xsl:text>echo "</xsl:text>
-            <xsl:value-of select="functx:pad-string-to-length('#', @wrapper, string-length(.))"/>
-            <xsl:text>"</xsl:text>
-            <xsl:value-of select="$v_newline"/>
-        </xsl:if>
+        <xsl:value-of select="$v_indent_string"/>
+        <xsl:text>#</xsl:text>
+        <xsl:value-of select="@desc"/>
+        <xsl:value-of select="$v_newline"/>
+        
+        <xsl:value-of select="$v_indent_string"/>
+        <xsl:text>#</xsl:text>
+        <xsl:for-each select="1 to string-length(@desc)">
+            <xsl:text>R</xsl:text>
+        </xsl:for-each>
+        <xsl:value-of select="$v_newline"/>
+        
         <xsl:value-of select="$v_indent_string"/>
         <xsl:text>echo "</xsl:text>
-        <xsl:value-of select="."/>
+        <xsl:value-of select="@desc"/>
         <xsl:text>"</xsl:text>
         <xsl:value-of select="$v_newline"/>
-        <xsl:if test="@wrapper and (@position = 'both' or @position = 'back')">
+        <xsl:choose>
+            <xsl:when test="@show_code = 'Y'">
+                <xsl:value-of select="$v_indent_string"/>
+                <xsl:text>echo </xsl:text>
+                <xsl:value-of select="functx:pad-string-to-length('~', '~', string-length(.))"/>
+                <xsl:value-of select="$v_newline"/>
+                <xsl:value-of select="$v_indent_string"/>
+                <xsl:text>echo "</xsl:text>
+                <xsl:value-of select="."/>
+                <xsl:text>"</xsl:text>
+                <xsl:value-of select="$v_newline"/>
+                <xsl:value-of select="$v_indent_string"/>
+                <xsl:text>echo </xsl:text>
+                <xsl:value-of select="functx:pad-string-to-length('~', '~', string-length(.))"/>
+                <xsl:value-of select="$v_newline"/>
+            </xsl:when>
+        </xsl:choose>
+        
+        <xsl:value-of select="$v_newline"/>
+        <xsl:value-of select="$v_indent_string"/>
+        <xsl:value-of select="."/>
+        <xsl:value-of select="$v_newline"/>
+    </xsl:template>
+    
+    <xsl:template match="run_here">
+        <xsl:variable name="v_indent_string">
+            <xsl:call-template name="get_indent"/>
+        </xsl:variable>
+        
+        <xsl:text>echo </xsl:text>
+        <xsl:value-of select="functx:pad-string-to-length('~', '~',  string-length(@desc))"/>
+        <xsl:value-of select="$v_newline"/>
+        <xsl:text>echo "</xsl:text>
+        <xsl:value-of select="@desc"/>
+        <xsl:text>"</xsl:text>
+        <xsl:value-of select="$v_newline"/>
+        <xsl:text>echo </xsl:text>
+        <xsl:value-of select="functx:pad-string-to-length('~', '~',   string-length(@desc))"/>
+        <xsl:value-of select="$v_newline"/>
+        
+        
+        <xsl:if test="@cat_run_code != 'no'">
             <xsl:value-of select="$v_indent_string"/>
-            <xsl:text>echo "</xsl:text>
-            <xsl:value-of select="functx:pad-string-to-length('#', @wrapper, string-length(.))"/>
-            <xsl:text>"</xsl:text>
+            <xsl:text>cat </xsl:text>
+            <xsl:text> &lt;&lt; </xsl:text>
+            <xsl:text>'EEOOCC'</xsl:text>
+            <xsl:value-of select="$v_newline"/>
+            <xsl:value-of select="@run_cmd"/>
+            <xsl:text> &lt;&lt; </xsl:text>
+            <xsl:if test="@quote = 'yes'">
+                <xsl:text>'</xsl:text>
+            </xsl:if>
+            <xsl:value-of select="@eof"/>
+            <xsl:if test="@quote = 'yes'">
+                <xsl:text>'</xsl:text>
+            </xsl:if>
+            <xsl:value-of select="$v_newline"/>
+            <xsl:value-of select="."/>
+            <xsl:value-of select="$v_newline"/>
+            <xsl:value-of select="@eof"/>
+            <xsl:value-of select="$v_newline"/>
+            <xsl:text>EEOOCC</xsl:text>
             <xsl:value-of select="$v_newline"/>
         </xsl:if>
+        
+        <xsl:value-of select="$v_indent_string"/>
+        <xsl:text># </xsl:text>
+        <xsl:value-of select="functx:pad-string-to-length(@desc, '!', 80)"/>
+        <xsl:value-of select="$v_newline"/>
+        <xsl:value-of select="$v_indent_string"/>
+        
+        <xsl:if test="@nohup = 'yes'">
+            <xsl:text>nohup </xsl:text>
+        </xsl:if>
+        <xsl:value-of select="@run_cmd"/>
+        <xsl:text> &lt;&lt; </xsl:text>
+        <xsl:if test="@quote = 'yes'">
+            <xsl:text>'</xsl:text>
+        </xsl:if>
+        <xsl:value-of select="@eof"/>
+        <xsl:if test="@quote = 'yes'">
+            <xsl:text>'</xsl:text>
+        </xsl:if>
+        <xsl:if test="string-length(@log) &gt; 0">
+            <xsl:choose>
+                <xsl:when test="@display = 'yes'">
+                    <xsl:text> | tee </xsl:text>
+                    <xsl:if test="@append = 'yes'">
+                        <xsl:text>-a </xsl:text>
+                    </xsl:if>
+                </xsl:when>
+                <xsl:otherwise>
+                    <xsl:text> &gt;</xsl:text>
+                    <xsl:if test="@append = 'yes'">
+                        <xsl:text>&gt;</xsl:text>
+                    </xsl:if>
+                </xsl:otherwise>
+            </xsl:choose>
+            <xsl:value-of select="@log"/>
+        </xsl:if>
+        
+        <xsl:if test="@nohup = 'yes'">
+            <xsl:text> 2&gt;&amp;1 &amp;</xsl:text>
+        </xsl:if>
+        
+        <xsl:value-of select="$v_newline"/>
+        <xsl:value-of select="."/>
+        <xsl:value-of select="$v_newline"/>
+        <xsl:value-of select="@eof"/>
+        <xsl:value-of select="$v_newline"/>
     </xsl:template>
 
+    <xsl:template match="source">
+        <xsl:variable name="v_indent_string">
+            <xsl:call-template name="get_indent"/>
+        </xsl:variable>
+        <xsl:value-of select="$v_indent_string"/>
+        <xsl:text>. </xsl:text>
+        <xsl:value-of select="."/>
+        
+        <xsl:if test="string-length(@log) &gt; 0">
+            <xsl:choose>
+                <xsl:when test="@display = 'yes'">
+                    <xsl:text> | tee </xsl:text>
+                    <xsl:if test="@append = 'yes'">
+                        <xsl:text>-a </xsl:text>
+                    </xsl:if>
+                </xsl:when>
+                <xsl:otherwise>
+                    <xsl:text> &gt;</xsl:text>
+                    <xsl:if test="@append = 'yes'">
+                        <xsl:text>&gt;</xsl:text>
+                    </xsl:if>
+                </xsl:otherwise>
+            </xsl:choose>
+            
+            <xsl:value-of select="@log"/>
+        </xsl:if>
+        <xsl:value-of select="$v_newline"/>
+    </xsl:template>
+
+    <xsl:template match="source_grid">
+        <xsl:text>. /home/grid/.bashrc</xsl:text>
+        <xsl:value-of select="$v_newline"/>
+    </xsl:template>
+    
     <xsl:template match="steps">
         <xsl:for-each select="*">
             <xsl:apply-templates select="."/>
         </xsl:for-each>
     </xsl:template>
-    <xsl:template match="full_code">
-        <xsl:value-of select="$v_newline"/>
-        <xsl:value-of select="."/>
-    </xsl:template>
 
-    <xsl:template match="source_grid">
-        <xsl:text>. /home/grid/.bashrc</xsl:text>
+    <xsl:template match="test">
+        <xsl:variable name="v_indent_string">
+            <xsl:call-template name="get_indent"/>
+        </xsl:variable>
+
+        <!--        <xsl:if test="../name() = 'if_block' and count(preceding-sibling::test) = 0">
+            <xsl:value-of select="$v_indent_string"/>
+            <xsl:text>if </xsl:text>
+        </xsl:if>
+-->
+        <xsl:if test="../name() = 'if_block' and count(preceding-sibling::test) > 0">
+            <xsl:value-of select="$v_indent_string"/>
+            <xsl:text>elif </xsl:text>
+        </xsl:if>
+        <xsl:text>[ </xsl:text>
+        <xsl:apply-templates select="./*"/>
+        <xsl:text> ] </xsl:text>
+        <xsl:value-of select="$v_newline"/>
+        <xsl:choose>
+            <xsl:when test="../name() = 'if_block'">
+                <xsl:value-of select="$v_indent_string"/>
+                <xsl:text>then</xsl:text>
+            </xsl:when>
+            <xsl:when test="../name() = 'while_block'">
+                <xsl:value-of select="$v_indent_string"/>
+                <xsl:text> do</xsl:text>
+            </xsl:when>
+        </xsl:choose>
+
         <xsl:value-of select="$v_newline"/>
     </xsl:template>
 
@@ -521,92 +614,5 @@
         </xsl:result-document>
     </xsl:template>
 
-    <xsl:template match="run_here">
-        <xsl:variable name="v_indent_string">
-            <xsl:call-template name="get_indent"/>
-        </xsl:variable>
-        
-        <xsl:text>echo </xsl:text>
-        <xsl:value-of select="functx:pad-string-to-length('~', '~',  string-length(@desc))"/>
-        <xsl:value-of select="$v_newline"/>
-        <xsl:text>echo "</xsl:text>
-        <xsl:value-of select="@desc"/>
-        <xsl:text>"</xsl:text>
-        <xsl:value-of select="$v_newline"/>
-        <xsl:text>echo </xsl:text>
-        <xsl:value-of select="functx:pad-string-to-length('~', '~',   string-length(@desc))"/>
-        <xsl:value-of select="$v_newline"/>
-        
-        
-        <xsl:if test="@cat_run_code != 'no'">
-            <xsl:value-of select="$v_indent_string"/>
-            <xsl:text>cat </xsl:text>
-            <xsl:text> &lt;&lt; </xsl:text>
-            <xsl:text>'EEOOCC'</xsl:text>
-            <xsl:value-of select="$v_newline"/>
-            <xsl:value-of select="@run_cmd"/>
-            <xsl:text> &lt;&lt; </xsl:text>
-            <xsl:if test="@quote = 'yes'">
-                <xsl:text>'</xsl:text>
-            </xsl:if>
-            <xsl:value-of select="@eof"/>
-            <xsl:if test="@quote = 'yes'">
-                <xsl:text>'</xsl:text>
-            </xsl:if>
-            <xsl:value-of select="$v_newline"/>
-            <xsl:value-of select="."/>
-            <xsl:value-of select="$v_newline"/>
-            <xsl:value-of select="@eof"/>
-            <xsl:value-of select="$v_newline"/>
-            <xsl:text>EEOOCC</xsl:text>
-            <xsl:value-of select="$v_newline"/>
-        </xsl:if>
-        
-        <xsl:value-of select="$v_indent_string"/>
-        <xsl:text># </xsl:text>
-        <xsl:value-of select="functx:pad-string-to-length(@desc, '!', 80)"/>
-        <xsl:value-of select="$v_newline"/>
-        <xsl:value-of select="$v_indent_string"/>
-        
-        <xsl:if test="@nohup = 'yes'">
-            <xsl:text>nohup </xsl:text>
-        </xsl:if>
-        <xsl:value-of select="@run_cmd"/>
-        <xsl:text> &lt;&lt; </xsl:text>
-        <xsl:if test="@quote = 'yes'">
-            <xsl:text>'</xsl:text>
-        </xsl:if>
-        <xsl:value-of select="@eof"/>
-        <xsl:if test="@quote = 'yes'">
-            <xsl:text>'</xsl:text>
-        </xsl:if>
-        <xsl:if test="string-length(@log) &gt; 0">
-            <xsl:choose>
-                <xsl:when test="@display = 'yes'">
-                    <xsl:text> | tee </xsl:text>
-                    <xsl:if test="@append = 'yes'">
-                        <xsl:text>-a </xsl:text>
-                    </xsl:if>
-                </xsl:when>
-                <xsl:otherwise>
-                    <xsl:text> &gt;</xsl:text>
-                    <xsl:if test="@append = 'yes'">
-                        <xsl:text>&gt;</xsl:text>
-                    </xsl:if>
-                </xsl:otherwise>
-            </xsl:choose>
-            <xsl:value-of select="@log"/>
-        </xsl:if>
-        
-        <xsl:if test="@nohup = 'yes'">
-            <xsl:text> 2&gt;&amp;1 &amp;</xsl:text>
-        </xsl:if>
-        
-        <xsl:value-of select="$v_newline"/>
-        <xsl:value-of select="."/>
-        <xsl:value-of select="$v_newline"/>
-        <xsl:value-of select="@eof"/>
-        <xsl:value-of select="$v_newline"/>
-    </xsl:template>
     
 </xsl:stylesheet>
