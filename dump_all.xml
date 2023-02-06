@@ -98,7 +98,7 @@ EOF
    </bash_code>
    <bash_code name="adrci_root_grid.sh"
               subdir="dba_code/grid"
-              symbolic_link="CN"
+              symbolic_link="AL"
               xml:base="code/bash/adrci_root_grid.xml">
       <header>
          <shebang>/bin/sh</shebang>
@@ -128,5 +128,23 @@ show incident -all
       </header>
       <source_grid/>
       <run desc="Opatch list patches" indent="1" show_code="Y">opatch lspatches</run>
+   </bash_code>
+   <bash_code name="asm_du.sh"
+              subdir="dba_code/grid"
+              symbolic_link="AD"
+              xml:base="code/bash/asm_du.xml">
+      <header>
+         <shebang>/bin/sh</shebang>
+         <desc>Grid disk space usage at 1st level directory</desc>
+      </header>
+      <source_grid/>
+      <for_cmd_input_block line_var="DISK_GROUP_NAME">
+         <input_cmd>asmcmd lsdg --suppressheader | awk '{print $NF}'</input_cmd>
+         <echo indent="1" position="both" wrapper="=">${DISK_GROUP_NAME}</echo>
+         <for_cmd_input_block line_var="DIRNAME" indent="1">
+            <input_cmd>asmcmd ls $DISK_GROUP_NAME | grep /</input_cmd>
+            <run indent="1" show_code="Y">asmcmd du +${DISK_GROUP_NAME}${DIRNAME}</run>
+         </for_cmd_input_block>
+      </for_cmd_input_block>
    </bash_code>
 </bash_codes>

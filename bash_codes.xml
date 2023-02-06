@@ -16,5 +16,6 @@
     <xi:include href="code/bash/asm_disk_info.xml"/>
     <xi:include href="code/bash/adrci_root_grid.xml"/>
     <xi:include href="code/bash/grid_inventory.xml"/>
+    <xi:include href="code/bash/asm_du.xml"/>
 
 </bash_codes>
