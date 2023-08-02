@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<bash_code name="apx_checking.sh" subdir="dba_code/grid" symbolic_link="AX">
+    <header>
+        <shebang>/bin/sh</shebang>
+        <desc>Check APX status</desc>
+    </header>
+    <run desc="Check cluster mode" indent="1" show_code="Y"><![CDATA[crsctl get cluster mode status]]></run>
+    <run desc="Check cluster node status" indent="1" show_code="Y"><![CDATA[crsctl get node role status -all]]></run>
+    <run desc="ASM mode" indent="1" show_code="Y"><![CDATA[asmcmd showclustermode]]></run>
+    <run desc="Proxy status" indent="1" show_code="Y"><![CDATA[crsctl stat res ora.proxy_advm -t]]></run>
+    <run desc="APX instance process" indent="1" show_code="Y"><![CDATA[ps -ef |grep pmon| grep -i apx]]></run>
+    <run desc="ASM volume status" indent="1" show_code="Y"><![CDATA[crsctl stat res ora.asm ora.DATAC1.ACFSVOL01.advm ora.datac1.acfsvol01.acfs ora.DATAC1.dg -t]]></run>
+</bash_code>

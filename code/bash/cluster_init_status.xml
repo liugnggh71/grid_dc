@@ -6,5 +6,5 @@
         <desc>Cluster local init status check</desc>
     </header>
     <source_grid/>
-    <run desc="Check local init status" indent="1"><![CDATA[crsctl stat res -t -init]]></run>
+    <run desc="Check local init status" indent="1" show_code="Y"><![CDATA[crsctl stat res -t -init]]></run>
 </bash_code>

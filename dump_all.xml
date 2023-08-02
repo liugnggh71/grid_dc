@@ -6,6 +6,21 @@
    <stage>
       <wget_stage_code>wget_grid_dc.sh</wget_stage_code>
    </stage>
+   <bash_code name="apx_checking.sh"
+              subdir="dba_code/grid"
+              symbolic_link="AX"
+              xml:base="code/bash/apx_checking.xml">
+      <header>
+         <shebang>/bin/sh</shebang>
+         <desc>Check APX status</desc>
+      </header>
+      <run desc="Check cluster mode" indent="1" show_code="Y">crsctl get cluster mode status</run>
+      <run desc="Check cluster node status" indent="1" show_code="Y">crsctl get node role status -all</run>
+      <run desc="ASM mode" indent="1" show_code="Y">asmcmd showclustermode</run>
+      <run desc="Proxy status" indent="1" show_code="Y">crsctl stat res ora.proxy_advm -t</run>
+      <run desc="APX instance process" indent="1" show_code="Y">ps -ef |grep pmon| grep -i apx</run>
+      <run desc="ASM volume status" indent="1" show_code="Y">crsctl stat res ora.asm ora.DATAC1.ACFSVOL01.advm ora.datac1.acfsvol01.acfs ora.DATAC1.dg -t</run>
+   </bash_code>
    <bash_code name="cluster_interconnection_check.sh"
               subdir="dba_code/grid"
               symbolic_link="CC"
@@ -37,7 +52,7 @@
          <desc>Cluster local init status check</desc>
       </header>
       <source_grid/>
-      <run desc="Check local init status" indent="1">crsctl stat res -t -init</run>
+      <run desc="Check local init status" indent="1" show_code="Y">crsctl stat res -t -init</run>
    </bash_code>
    <bash_code name="check_ASM_space.sh"
               subdir="dba_code/grid"
@@ -55,5 +70,81 @@ sqlplus / as sysdba &lt;&lt; EOF
 @${MY_CODE_DIR}/check_ASM_space.sql
 EOF
 </full_code>
+   </bash_code>
+   <bash_code name="cluster_name.sh"
+              subdir="dba_code/grid"
+              symbolic_link="CN"
+              xml:base="code/bash/cluster_name.xml">
+      <header>
+         <shebang>/bin/sh</shebang>
+         <desc>Cluster name</desc>
+      </header>
+      <run desc="Cluster Nodes name" indent="1" show_code="Y">olsnodes -c</run>
+      <run desc="Cluster debug info" indent="1" show_code="Y">olsnodes -v</run>
+      <run desc="Cluster Nodes name 2" indent="1" show_code="Y">cemutlo -n</run>
+   </bash_code>
+   <bash_code name="asm_disk_info.sh"
+              subdir="dba_code/grid"
+              symbolic_link="DA"
+              xml:base="code/bash/asm_disk_info.xml">
+      <header>
+         <shebang>/bin/sh</shebang>
+         <desc>ASM disk list info</desc>
+      </header>
+      <run desc="kfod list disks 1485597.1" indent="1" show_code="Y">kfod status=TRUE  disks=all dscvgroup=TRUE name=true</run>
+      <run desc="amdu report.txt under amdu_YYYY_MM_DD_HH_MI_SS 553639.1"
+           indent="1"
+           show_code="Y">amdu</run>
+   </bash_code>
+   <bash_code name="adrci_root_grid.sh"
+              subdir="dba_code/grid"
+              symbolic_link="AL"
+              xml:base="code/bash/adrci_root_grid.xml">
+      <header>
+         <shebang>/bin/sh</shebang>
+         <desc>adrci root check grid ASM alerts</desc>
+      </header>
+      <source_grid/>
+      <run desc="Show date" indent="1" show_code="Y">date</run>
+      <run desc="Show hostname" indent="1" show_code="Y">hostname -f</run>
+      <run_here run_cmd="adrci"
+                indent="1"
+                desc="Check alert log for host $(hostname -s) on grid and listeners"
+                eof="EOS"
+                quote="yes"
+                append="no"
+                display="yes"
+                cat_run_code="yes">show problem -all
+show incident -all
+</run_here>
+   </bash_code>
+   <bash_code name="grid_inventory.sh"
+              subdir="dba_code/grid"
+              symbolic_link="GI"
+              xml:base="code/bash/grid_inventory.xml">
+      <header>
+         <shebang>/bin/sh</shebang>
+         <desc>Grid inventory</desc>
+      </header>
+      <source_grid/>
+      <run desc="Opatch list patches" indent="1" show_code="Y">opatch lspatches</run>
+   </bash_code>
+   <bash_code name="asm_du.sh"
+              subdir="dba_code/grid"
+              symbolic_link="AD"
+              xml:base="code/bash/asm_du.xml">
+      <header>
+         <shebang>/bin/sh</shebang>
+         <desc>Grid disk space usage at 1st level directory</desc>
+      </header>
+      <source_grid/>
+      <for_cmd_input_block line_var="DISK_GROUP_NAME">
+         <input_cmd>asmcmd lsdg --suppressheader | awk '{print $NF}'</input_cmd>
+         <echo indent="1" position="both" wrapper="=">${DISK_GROUP_NAME}</echo>
+         <for_cmd_input_block line_var="DIRNAME" indent="1">
+            <input_cmd>asmcmd ls $DISK_GROUP_NAME | grep /</input_cmd>
+            <run indent="1" show_code="Y">asmcmd du +${DISK_GROUP_NAME}${DIRNAME}</run>
+         </for_cmd_input_block>
+      </for_cmd_input_block>
    </bash_code>
 </bash_codes>

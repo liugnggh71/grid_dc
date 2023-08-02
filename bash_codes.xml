@@ -7,8 +7,15 @@
     <stage>
         <wget_stage_code>wget_grid_dc.sh</wget_stage_code>
     </stage>
+    <xi:include href="code/bash/apx_checking.xml"/>
     <xi:include href="code/bash/cluster_inter_connection.xml"/>
     <xi:include href="code/bash/cluster_local_status.xml"/>
-    <xi:include href="code/bash/cluster_init_status.xml"/>    
-    <xi:include href="code/bash/check_ASM_space.xml"/>    
+    <xi:include href="code/bash/cluster_init_status.xml"/>
+    <xi:include href="code/bash/check_ASM_space.xml"/>
+    <xi:include href="code/bash/cluster_name.xml"/>
+    <xi:include href="code/bash/asm_disk_info.xml"/>
+    <xi:include href="code/bash/adrci_root_grid.xml"/>
+    <xi:include href="code/bash/grid_inventory.xml"/>
+    <xi:include href="code/bash/asm_du.xml"/>
+
 </bash_codes>
